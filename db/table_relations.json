@@ -1,0 +1,180 @@
+[
+  {
+    "tableName": "Users",
+    "columns": [
+      {
+        "name": "id",
+        "type": "INTEGER"
+      },
+      {
+        "name": "name",
+        "type": "TEXT"
+      },
+      {
+        "name": "email",
+        "type": "TEXT"
+      }
+    ],
+    "relationships": []
+  },
+  {
+    "tableName": "Customers",
+    "columns": [
+      {
+        "name": "id",
+        "type": "INTEGER"
+      },
+      {
+        "name": "name",
+        "type": "TEXT"
+      },
+      {
+        "name": "age",
+        "type": "INTEGER"
+      },
+      {
+        "name": "location",
+        "type": "TEXT"
+      },
+      {
+        "name": "signup_date",
+        "type": "DATE"
+      }
+    ],
+    "relationships": []
+  },
+  {
+    "tableName": "Products",
+    "columns": [
+      {
+        "name": "id",
+        "type": "INTEGER"
+      },
+      {
+        "name": "name",
+        "type": "TEXT"
+      },
+      {
+        "name": "price",
+        "type": "REAL"
+      },
+      {
+        "name": "category_id",
+        "type": "INTEGER"
+      }
+    ],
+    "relationships": [
+      {
+        "column": "category_id",
+        "references": "Categories(id)"
+      }
+    ]
+  },
+  {
+    "tableName": "Categories",
+    "columns": [
+      {
+        "name": "id",
+        "type": "INTEGER"
+      },
+      {
+        "name": "name",
+        "type": "TEXT"
+      }
+    ],
+    "relationships": []
+  },
+  {
+    "tableName": "Orders",
+    "columns": [
+      {
+        "name": "id",
+        "type": "INTEGER"
+      },
+      {
+        "name": "user_id",
+        "type": "INTEGER"
+      },
+      {
+        "name": "product_id",
+        "type": "INTEGER"
+      },
+      {
+        "name": "quantity",
+        "type": "INTEGER"
+      },
+      {
+        "name": "order_date",
+        "type": "DATE"
+      }
+    ],
+    "relationships": [
+      {
+        "column": "product_id",
+        "references": "Products(id)"
+      },
+      {
+        "column": "user_id",
+        "references": "Users(id)"
+      }
+    ]
+  },
+  {
+    "tableName": "Sales_Trends",
+    "columns": [
+      {
+        "name": "product_id",
+        "type": "INTEGER"
+      },
+      {
+        "name": "date",
+        "type": "DATE"
+      },
+      {
+        "name": "units_sold",
+        "type": "INTEGER"
+      }
+    ],
+    "relationships": [
+      {
+        "column": "product_id",
+        "references": "Products(id)"
+      }
+    ]
+  },
+  {
+    "tableName": "Marketing_Campaigns",
+    "columns": [
+      {
+        "name": "id",
+        "type": "INTEGER"
+      },
+      {
+        "name": "product_id",
+        "type": "INTEGER"
+      },
+      {
+        "name": "budget",
+        "type": "REAL"
+      },
+      {
+        "name": "start_date",
+        "type": "DATE"
+      },
+      {
+        "name": "end_date",
+        "type": "DATE"
+      },
+      {
+        "name": "success_metric",
+        "type": "TEXT"
+      }
+    ],
+    "relationships": [
+      {
+        "column": "product_id",
+        "references": "Products(id)"
+      }
+    ]
+  }
+]
