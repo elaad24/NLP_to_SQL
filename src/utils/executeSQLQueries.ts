@@ -4,6 +4,10 @@ import sqlite3 from "sqlite3";
 // Connect to SQLite
 const db = new sqlite3.Database("database.sqlite");
 
+/**
+ * this function take the json formatted answer and iterate it and execute it step by step and return the output answer
+ *@returns {answer: results,lastSqlQuery: lastSqlQuery};
+ */
 export const executeSQLQueries = async (steps: any[]) => {
   const results: Record<number, any> = {}; // Store results per step
   let lastSqlQuery = "";
