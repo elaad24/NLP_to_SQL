@@ -8,6 +8,7 @@ import {
 
 import tableRelations from "../../db/table_relations.json";
 import { executeSQLQueries } from "../utils/executeSQLQueries";
+import { combineSQLQueriesUsingCTEs } from "../utils/combineSQLQueriesUsingCTEs";
 
 const router = Router();
 const botServerPortNumber = "11434";
@@ -82,8 +83,14 @@ router.post("/advanced", async (req: Request, res: Response) => {
       }
     );
     console.log("response ", response.data);
-    const ans = executeSQLQueries(response.data);
+    // return an answer for the query
+    // const ans = executeSQLQueries(response.data);
+
+    //return an combined query
+    const ans = combineSQLQueriesUsingCTEs(response.data);
     console.log(ans);
+
+    // ! need to test executeSQLQueries  and combineSQLQueriesUsingCTEs
 
     res.status(200).json(ans);
   } catch (error) {
