@@ -1,4 +1,3 @@
-import { query } from "express";
 import sqlite3 from "sqlite3";
 
 // Connect to SQLite

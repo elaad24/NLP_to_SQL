@@ -13,7 +13,7 @@ interface SelfReflection {
   improvements_made: string; // Adjustments to improve accuracy
 }
 
-interface LLMResponse {
+export interface LLMResponse {
   steps: ReasoningStep[]; // Array of reasoning steps
   self_reflection: SelfReflection; // Self-check to refine results
 }

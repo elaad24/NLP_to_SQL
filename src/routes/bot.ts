@@ -8,7 +8,11 @@ import {
 
 import tableRelations from "../../db/table_relations.json";
 import { executeSQLQueries } from "../utils/executeSQLQueries";
-import { combineSQLQueriesUsingCTEs } from "../utils/combineSQLQueriesUsingCTEs";
+import {
+  combineSQLQueriesUsingCTEs,
+  LLMResponse,
+} from "../utils/combineSQLQueriesUsingCTEs";
+import { sendChatGPTRequest } from "../utils/sendDataToGpt";
 
 const router = Router();
 const botServerPortNumber = "11434";
@@ -63,39 +67,44 @@ router.post("/basic", async (req: Request, res: Response) => {
     console.error("the request has failed ", error);
   }
 });
+// ! need to test executeSQLQueries  and combineSQLQueriesUsingCTEs
 router.post("/advanced", async (req: Request, res: Response) => {
   const userPrompt = req.body?.prompt;
   if (userPrompt == undefined) {
     res.status(400).json({ text: "prompt text is required" });
   }
+  const fullPrompt = breakPromptToReasoningTasks(userPrompt, tableRelations);
+  const gptResponse = await sendChatGPTRequest({ prompt: fullPrompt });
+  console.log("gptResponse", gptResponse);
 
-  const prompt = breakPromptToReasoningTasks(userPrompt, tableRelations);
-  try {
-    let response = await axios.post(
-      botServerEndpoint,
-      {
-        model: "llama3.2",
-        prompt: prompt,
-        stream: false,
-      },
-      {
-        headers: { "Content-Type": "application/json" },
-      }
-    );
-    console.log("response ", response.data);
-    // return an answer for the query
-    // const ans = executeSQLQueries(response.data);
+  const ans = combineSQLQueriesUsingCTEs(gptResponse);
+  console.log("sqlCombined", ans);
+  res.status(200).json({ sqlCombined: ans, fullPrompt });
 
-    //return an combined query
-    const ans = combineSQLQueriesUsingCTEs(response.data);
-    console.log(ans);
+  // try {
+  // let response = await axios.post(
+  //   botServerEndpoint,
+  //   {
+  //     model: "llama3.2",
+  //     prompt: prompt,
+  //     stream: false,
+  //   },
+  //   {
+  //     headers: { "Content-Type": "application/json" },
+  //   }
+  // );
+  // console.log("response ", response.data);
+  // return an answer for the query
+  // const ans = executeSQLQueries(response.data);
 
-    // ! need to test executeSQLQueries  and combineSQLQueriesUsingCTEs
+  //return an combined query
 
-    res.status(200).json(ans);
-  } catch (error) {
-    console.error("the request has failed ", error);
-  }
+  // console.log(ans);
+
+  // res.status(200).json(ans);
+  // } catch (error) {
+  // console.error("the request has failed ", error);
+  // }
 });
 
 export default router;

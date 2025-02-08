@@ -89,6 +89,13 @@ export const breakPromptToMachinePrompt = (
 //todo : repeat of the main task - __
 // self-reflection - print your reasoning process along you answer .
 
+/**
+ * this function is toward a reasoning sql task breaking
+ *
+ * @param userPrompt
+ * @param tables_context
+ * @returns sting - te combined full prompt.
+ */
 export const breakPromptToReasoningTasks = (
   userPrompt: string,
   tables_context: unknown
