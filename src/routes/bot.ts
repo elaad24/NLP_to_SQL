@@ -2,10 +2,17 @@ import { Router, Request, Response } from "express";
 import axios from "axios";
 import {
   breakPromptToMachinePrompt,
+  breakPromptToReasoningTasks,
   createCompletePrompt,
 } from "../utils/prompts";
 
 import tableRelations from "../../db/table_relations.json";
+import { executeSQLQueries } from "../utils/executeSQLQueries";
+import {
+  combineSQLQueriesUsingCTEs,
+  LLMResponse,
+} from "../utils/combineSQLQueriesUsingCTEs";
+import { sendChatGPTRequest } from "../utils/sendDataToGpt";
 
 const router = Router();
 const botServerPortNumber = "11434";
@@ -25,7 +32,7 @@ router.get("/", (req: Request, res: Response) => {
 // endpoint - offline actions allowed ,
 
 // Add more endpoints if needed
-router.post("/", async (req: Request, res: Response) => {
+router.post("/basic", async (req: Request, res: Response) => {
   const userPrompt = req.body?.prompt;
   if (userPrompt == undefined) {
     res.status(400).json({ text: "prompt text is required" });
@@ -59,6 +66,45 @@ router.post("/", async (req: Request, res: Response) => {
   } catch (error) {
     console.error("the request has failed ", error);
   }
+});
+// ! need to test executeSQLQueries  and combineSQLQueriesUsingCTEs
+router.post("/advanced", async (req: Request, res: Response) => {
+  const userPrompt = req.body?.prompt;
+  if (userPrompt == undefined) {
+    res.status(400).json({ text: "prompt text is required" });
+  }
+  const fullPrompt = breakPromptToReasoningTasks(userPrompt, tableRelations);
+  const gptResponse = await sendChatGPTRequest({ prompt: fullPrompt });
+  console.log("gptResponse", gptResponse);
+
+  const ans = combineSQLQueriesUsingCTEs(gptResponse);
+  console.log("sqlCombined", ans);
+  res.status(200).json({ sqlCombined: ans, fullPrompt });
+
+  // try {
+  // let response = await axios.post(
+  //   botServerEndpoint,
+  //   {
+  //     model: "llama3.2",
+  //     prompt: prompt,
+  //     stream: false,
+  //   },
+  //   {
+  //     headers: { "Content-Type": "application/json" },
+  //   }
+  // );
+  // console.log("response ", response.data);
+  // return an answer for the query
+  // const ans = executeSQLQueries(response.data);
+
+  //return an combined query
+
+  // console.log(ans);
+
+  // res.status(200).json(ans);
+  // } catch (error) {
+  // console.error("the request has failed ", error);
+  // }
 });
 
 export default router;
