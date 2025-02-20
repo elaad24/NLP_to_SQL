@@ -44,45 +44,38 @@ function extractPrimaryColumn(sql: string): string {
 }
 
 /**
- * This function combines the individual SQL queries from an LLMResponse into one SQL query using CTEs.
- * It assumes that if a step is marked as dependent, its SQL contains a placeholder {previous_result}
- * that should be replaced with a reference to the primary column from the previous step's CTE.
+ * Combines multiple SQL queries into a single CTE SQL query.
+ * Supports {previous_result} placeholders by injecting the correct subquery.
  */
 export function combineSQLQueriesUsingCTEs(llmResponse: LLMResponse): string {
   const cteQueries: string[] = [];
 
-  // Loop through each reasoning step.
   for (let i = 0; i < llmResponse.steps.length; i++) {
-    const step = llmResponse.steps[i];
-    let query = step.sql_query || "";
+    let step = llmResponse.steps[i];
+    let query = step.sql_query?.trim() || "";
 
-    // If the current step depends on the previous one, replace {previous_result}.
-    if (step.depends_on_previous) {
-      if (i === 0) {
-        // This situation should not occur (step 1 cannot be dependent).
-        console.error("Error: Step 1 cannot depend on a previous result.");
-      } else {
-        // Extract the primary column from the previous step's SQL.
-        const prevStep = llmResponse.steps[i - 1];
-        const primaryCol = extractPrimaryColumn(prevStep.sql_query || "");
-        // Replace {previous_result} with a subquery that selects the primary column from the previous CTE.
-        // Note: Here, we name our CTEs as Step1, Step2, etc.
-        query = query.replace(
-          "{previous_result}",
-          `(SELECT ${primaryCol} FROM Step${i} LIMIT 1)`
-        );
-      }
+    // Step 1 should not depend on a previous step
+    if (step.depends_on_previous && i === 0) {
+      throw new Error("Error: Step 1 cannot depend on a previous result.");
     }
 
-    // Wrap the (possibly modified) query as a CTE.
-    cteQueries.push(`Step${i + 1} AS (\n  ${query}\n)`);
+    // Handle dependent queries
+    if (step.depends_on_previous) {
+      // Construct the subquery to replace {previous_result}
+      const subquery = `(SELECT category_id FROM Step_${i} LIMIT 1)`;
+
+      // Replace all placeholders with the correct subquery
+      query = query.replaceAll("{previous_result.category_id}", subquery);
+    }
+
+    // Format CTE names consistently
+    cteQueries.push(`Step_${i + 1} AS (\n  ${query} \n)`);
   }
 
-  // Combine all the CTEs into one WITH clause.
-  const withClause = `WITH\n${cteQueries.join(",\n")}\n`;
-
-  // The final query selects all data from the last step.
+  // Create the combined CTE query
+  const withClause = `WITH \n${cteQueries.join(",\n")}\n`;
   const finalQuery =
-    withClause + `SELECT * FROM Step${llmResponse.steps.length};`;
+    withClause + `SELECT * FROM Step_${llmResponse.steps.length};`;
+
   return finalQuery;
 }

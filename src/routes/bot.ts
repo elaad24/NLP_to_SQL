@@ -106,5 +106,18 @@ router.post("/advanced", async (req: Request, res: Response) => {
   // console.error("the request has failed ", error);
   // }
 });
+router.post(
+  "/combineSQLQueriesUsingCTEs",
+  async (req: Request, res: Response) => {
+    const data = req.body?.data;
+    if (data == undefined) {
+      res.status(400).json({ text: "data text is required" });
+    }
+
+    const ans = combineSQLQueriesUsingCTEs(data);
+    console.log("sqlCombined", ans);
+    res.status(200).json({ sqlCombined: ans });
+  }
+);
 
 export default router;

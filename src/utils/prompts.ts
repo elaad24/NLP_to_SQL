@@ -108,7 +108,8 @@ export const breakPromptToReasoningTasks = (
   const context_explain =
     "the following context contain all of the tables and there structure, and the relation between them";
   const context = `context: ${JSON.stringify(tables_context)}`;
-
+  const sqlType = "MySql";
+  const sqlTypeGuard = `make sure that the sql syntax you write is  ${sqlType} syntax  `;
   const main_question = `given question: ${userPrompt}.`;
   const task_title = "*Task:*";
   const main_task = `
@@ -219,6 +220,7 @@ export const breakPromptToReasoningTasks = (
   //   ${gratitude},
   //   ${context_explain},
   //   ${context},
+  //   ${sqlTypeGuard},
   //   ${main_question},
   //   ${task_title},
   //   ${main_task},
@@ -226,10 +228,11 @@ export const breakPromptToReasoningTasks = (
   //   ${fall_back},
   //   ${self_reflection},
   //   ${examples},
+  //   ${sqlTypeGuard},
   //   ${formatting},
   //   ${main_task}`;
 
-  const complete_prompt = `${role_base},${general_task},${gratitude},${context_explain},${context},${main_question},${task_title},${main_task},${chain_of_thought},${fall_back},${self_reflection},${examples},${formatting},${main_task}`;
+  const complete_prompt = `${role_base},${general_task},${gratitude},${context_explain},${context},${sqlTypeGuard},${main_question},${task_title},${main_task},${chain_of_thought},${fall_back},${self_reflection},${examples},${sqlTypeGuard},${formatting},${main_task}`;
 
   return complete_prompt;
 };

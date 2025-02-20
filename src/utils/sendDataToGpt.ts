@@ -18,14 +18,29 @@ export async function sendChatGPTRequest({
   prompt,
 }: IsendDataToGpt): Promise<LLMResponse> {
   try {
-    const response = await openai.chat.completions.create({
-      model: "o3-mini",
-      messages: [{ role: "system", content: prompt }],
-      temperature: 0.2, // Adjust for creativity
-      max_tokens: 300, // Limit response length
-      frequency_penalty: 0.0, //  allow structured SQL generation without forcing variation
-      response_format: { type: "json_object" },
-    });
+    const response = await openai.chat.completions.create(
+      {
+        model: "o1-preview",
+        messages: [{ role: "user", content: prompt }],
+      }
+
+      // ! this settings not supported with the o1-preview
+      // {messages: [{ role: "system", content: prompt }],
+      // temperature: 0.2, // Adjust for creativity
+      // max_tokens: 300, // Limit response length
+      // frequency_penalty: 0.0, //  allow structured SQL generation without forcing variation
+      // response_format: { type: "json_object" },
+      // }
+    );
+    //   const response = await openai.chat.completions.create({
+    //       //     messages: [{ "role": "system", content: prompt }],
+
+    //     temperature: 0.2, // Adjust for creativity
+    //     max_tokens: 300, // Limit response length
+    //     frequency_penalty: 0.0, //  allow structured SQL generation without forcing variation
+    //     response_format: { type: "json_object" },
+    //   }
+    // );
 
     return response.choices[0].message.content as unknown as LLMResponse;
   } catch (error) {
